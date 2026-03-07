@@ -5,6 +5,7 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.ExerciseRoute
 import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Length
 import com.example.android.architecture.blueprints.todoapp.domain.RunSessionDraft
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -67,8 +68,9 @@ class AndroidHealthConnectGateway @Inject constructor(
             startZoneOffset = startZoneOffset,
             endTime = runSessionDraft.endTime,
             endZoneOffset = endZoneOffset,
+            metadata = Metadata.manualEntry(),
             exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_RUNNING,
-            route = route,
+            exerciseRoute = route,
             title = "GPX Imported Run",
             notes = "Imported by Step App",
         )
