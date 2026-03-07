@@ -21,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun GpxImportRoute(
     onBack: () -> Unit,
+    onNavigateToPreview: () -> Unit,
     viewModel: GpxImportViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -41,6 +42,7 @@ fun GpxImportRoute(
             )
         },
         onBack = onBack,
+        onNavigateToPreview = onNavigateToPreview,
     )
 }
 
@@ -49,6 +51,7 @@ private fun GpxImportScreen(
     uiState: GpxImportUiState,
     onPickGpx: () -> Unit,
     onBack: () -> Unit,
+    onNavigateToPreview: () -> Unit,
 ) {
     Scaffold { innerPadding ->
         Column(
@@ -82,6 +85,12 @@ private fun GpxImportScreen(
             }
             uiState.errorMessage?.let {
                 Text(text = it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+            }
+            Button(
+                onClick = onNavigateToPreview,
+                enabled = uiState.fileName != null && uiState.errorMessage == null && !uiState.isLoading,
+            ) {
+                Text("前往跑步摘要預覽")
             }
             Button(onClick = onBack, enabled = !uiState.isLoading) {
                 Text("Back")

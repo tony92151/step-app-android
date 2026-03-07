@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.android.architecture.blueprints.todoapp.auth.LoginRoute
 import com.example.android.architecture.blueprints.todoapp.gpx.GpxImportRoute
+import com.example.android.architecture.blueprints.todoapp.gpx.RunPreviewRoute
 
 private object StepRoutes {
     const val HOME = "home"
@@ -49,13 +50,15 @@ fun StepAppNavGraph(
             LoginRoute(onBack = { navController.popBackStack() })
         }
         composable(StepRoutes.IMPORT) {
-            GpxImportRoute(onBack = { navController.popBackStack() })
+            GpxImportRoute(
+                onBack = { navController.popBackStack() },
+                onNavigateToPreview = { navController.navigate(StepRoutes.PREVIEW) },
+            )
         }
         composable(StepRoutes.PREVIEW) {
-            FeaturePlaceholderScreen(
-                title = "Run Preview",
-                description = "Milestone 3: distance and pace summary UI",
+            RunPreviewRoute(
                 onBack = { navController.popBackStack() },
+                onNavigateToSync = { navController.navigate(StepRoutes.SYNC) },
             )
         }
         composable(StepRoutes.SYNC) {
