@@ -1,6 +1,7 @@
 package com.example.android.architecture.blueprints.todoapp.gpx
 
 import android.content.ContentResolver
+import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
 import com.example.android.architecture.blueprints.todoapp.domain.GpxTrackPoint
@@ -27,6 +28,17 @@ class GpxImportRepository @Inject constructor(
 
     suspend fun importFromUri(uri: Uri): Result<GpxImportResult> = withContext(Dispatchers.IO) {
         runCatching {
+            // 嘗試取得持久讀取權限，讓 ContentResolver 可在 IO 執行緒正常開啟 URI。
+            // 某些 URI（如 file://）不支援持久化授權，忽略 SecurityException。
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                )
+            } catch (_: SecurityException) {
+                // Non-persistable URI (e.g. file://), safe to ignore.
+            }
+
             val rawContent = context.contentResolver.openInputStream(uri)
                 ?.bufferedReader()
                 ?.use { it.readText() }
