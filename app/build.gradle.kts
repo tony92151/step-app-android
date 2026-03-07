@@ -117,6 +117,7 @@ dependencies {
     implementation(libs.androidx.test.espresso.idling.resources)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.androidx.health.connect.client)
     implementation(libs.googleid)
 
     // Architecture Components
