@@ -64,6 +64,7 @@
     <string name="successfully_deleted_task_message">Task was deleted</string>
     <string name="successfully_added_task_message">Task added</string>
     <string name="no_data_description" />
+    <string name="default_web_client_id">REPLACE_WITH_WEB_CLIENT_ID</string>
 
     <!-- Content Descriptions -->
     <string name="tasks_header_image_content_description">Tasks header image</string>

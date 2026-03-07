@@ -16,6 +16,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.android.architecture.blueprints.todoapp.auth.LoginRoute
 
 private object StepRoutes {
     const val HOME = "home"
@@ -44,11 +45,7 @@ fun StepAppNavGraph(
             )
         }
         composable(StepRoutes.LOGIN) {
-            FeaturePlaceholderScreen(
-                title = "Google Login",
-                description = "Milestone 1: Credential Manager + Google Sign-In",
-                onBack = { navController.popBackStack() },
-            )
+            LoginRoute(onBack = { navController.popBackStack() })
         }
         composable(StepRoutes.IMPORT) {
             FeaturePlaceholderScreen(
