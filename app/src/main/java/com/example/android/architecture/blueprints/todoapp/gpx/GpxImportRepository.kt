@@ -22,6 +22,9 @@ class GpxImportRepository @Inject constructor(
     private val _latestImport = MutableStateFlow<GpxImportResult?>(null)
     val latestImport: StateFlow<GpxImportResult?> = _latestImport.asStateFlow()
 
+    private val _latestSyncState = MutableStateFlow<ImportedRunSyncState?>(null)
+    val latestSyncState: StateFlow<ImportedRunSyncState?> = _latestSyncState.asStateFlow()
+
     suspend fun importFromUri(uri: Uri): Result<GpxImportResult> = withContext(Dispatchers.IO) {
         runCatching {
             val rawContent = context.contentResolver.openInputStream(uri)
@@ -35,8 +38,31 @@ class GpxImportRepository @Inject constructor(
                 points = points,
             ).also {
                 _latestImport.value = it
+                _latestSyncState.value = ImportedRunSyncState(
+                    fileName = it.fileName,
+                    status = SyncStatus.NOT_SYNCED,
+                    errorMessage = null,
+                )
             }
         }
+    }
+
+    fun markSyncSuccess() {
+        val latest = _latestImport.value ?: return
+        _latestSyncState.value = ImportedRunSyncState(
+            fileName = latest.fileName,
+            status = SyncStatus.SUCCESS,
+            errorMessage = null,
+        )
+    }
+
+    fun markSyncFailure(errorMessage: String) {
+        val latest = _latestImport.value ?: return
+        _latestSyncState.value = ImportedRunSyncState(
+            fileName = latest.fileName,
+            status = SyncStatus.FAILED,
+            errorMessage = errorMessage,
+        )
     }
 
     private fun resolveFileName(contentResolver: ContentResolver, uri: Uri): String {
@@ -54,3 +80,15 @@ data class GpxImportResult(
     val fileName: String,
     val points: List<GpxTrackPoint>,
 )
+
+data class ImportedRunSyncState(
+    val fileName: String,
+    val status: SyncStatus,
+    val errorMessage: String?,
+)
+
+enum class SyncStatus {
+    NOT_SYNCED,
+    SUCCESS,
+    FAILED,
+}

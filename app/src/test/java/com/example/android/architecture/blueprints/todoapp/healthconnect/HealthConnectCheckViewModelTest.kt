@@ -1,6 +1,11 @@
 package com.example.android.architecture.blueprints.todoapp.healthconnect
 
+import androidx.test.core.app.ApplicationProvider
+import com.example.android.architecture.blueprints.todoapp.domain.GpxTrackPoint
 import com.example.android.architecture.blueprints.todoapp.domain.RunSessionDraft
+import com.example.android.architecture.blueprints.todoapp.domain.RunSummaryCalculator
+import com.example.android.architecture.blueprints.todoapp.gpx.GpxImportRepository
+import com.example.android.architecture.blueprints.todoapp.gpx.GpxParser
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -22,13 +27,15 @@ class HealthConnectCheckViewModelTest {
                 requiredPermissions = requiredPermissions,
                 grantedPermissions = requiredPermissions,
             ),
+            gpxImportRepository = buildRepository(),
+            runSummaryCalculator = RunSummaryCalculator(),
         )
 
         advanceUntilIdle()
 
         assertThat(viewModel.uiState.value.isAvailable).isTrue()
         assertThat(viewModel.uiState.value.hasAllPermissions).isTrue()
-        assertThat(viewModel.uiState.value.message).isEqualTo("已完成授權，可返回同步流程。")
+        assertThat(viewModel.uiState.value.message).isEqualTo("已完成授權，可開始同步。")
     }
 
     @Test
@@ -40,6 +47,8 @@ class HealthConnectCheckViewModelTest {
                 requiredPermissions = requiredPermissions,
                 grantedPermissions = emptySet(),
             ),
+            gpxImportRepository = buildRepository(),
+            runSummaryCalculator = RunSummaryCalculator(),
         )
 
         advanceUntilIdle()
@@ -57,10 +66,21 @@ class HealthConnectCheckViewModelTest {
                 requiredPermissions = setOf("a"),
                 grantedPermissions = emptySet(),
             ),
+            gpxImportRepository = buildRepository(),
+            runSummaryCalculator = RunSummaryCalculator(),
         )
 
         assertThat(viewModel.uiState.value.isAvailable).isFalse()
         assertThat(viewModel.uiState.value.message).isEqualTo("尚未安裝 Health Connect，請先安裝後再返回同步。")
+    }
+
+    private fun buildRepository(): GpxImportRepository {
+        return GpxImportRepository(
+            context = ApplicationProvider.getApplicationContext(),
+            gpxParser = object : GpxParser {
+                override fun parse(rawGpx: String): Result<List<GpxTrackPoint>> = Result.success(emptyList())
+            },
+        )
     }
 }
 
