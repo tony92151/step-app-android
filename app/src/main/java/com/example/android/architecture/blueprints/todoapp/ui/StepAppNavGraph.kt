@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.android.architecture.blueprints.todoapp.auth.LoginRoute
 import com.example.android.architecture.blueprints.todoapp.gpx.GpxImportRoute
 import com.example.android.architecture.blueprints.todoapp.gpx.RunPreviewRoute
+import com.example.android.architecture.blueprints.todoapp.healthconnect.HealthConnectCheckRoute
 
 private object StepRoutes {
     const val HOME = "home"
@@ -62,11 +63,7 @@ fun StepAppNavGraph(
             )
         }
         composable(StepRoutes.SYNC) {
-            FeaturePlaceholderScreen(
-                title = "Health Connect Sync",
-                description = "Milestone 4-5: permission checks and data sync",
-                onBack = { navController.popBackStack() },
-            )
+            HealthConnectCheckRoute(onBack = { navController.popBackStack() })
         }
     }
 }
@@ -99,27 +96,6 @@ private fun HomeScreen(
             Button(onClick = onNavigateToImport) { Text("Go to GPX Import") }
             Button(onClick = onNavigateToPreview) { Text("Go to Run Preview") }
             Button(onClick = onNavigateToSync) { Text("Go to Health Connect Sync") }
-        }
-    }
-}
-
-@Composable
-private fun FeaturePlaceholderScreen(
-    title: String,
-    description: String,
-    onBack: () -> Unit,
-) {
-    Scaffold { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 24.dp, vertical = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Text(text = title, style = MaterialTheme.typography.headlineSmall)
-            Text(text = description, style = MaterialTheme.typography.bodyMedium)
-            Button(onClick = onBack) { Text("Back") }
         }
     }
 }
