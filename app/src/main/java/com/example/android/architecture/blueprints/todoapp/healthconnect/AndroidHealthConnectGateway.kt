@@ -5,8 +5,10 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.ExerciseRoute
 import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.units.Length
 import com.example.android.architecture.blueprints.todoapp.domain.RunSessionDraft
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -39,11 +41,39 @@ class AndroidHealthConnectGateway @Inject constructor(
         }
     }
 
-    override suspend fun syncRunSession(runSessionDraft: RunSessionDraft): Result<Unit> {
-        return Result.failure(
-            UnsupportedOperationException(
-                "Milestone 5 尚未完成：目前僅支援 Health Connect 可用性與權限檢查。",
-            ),
+    override suspend fun syncRunSession(runSessionDraft: RunSessionDraft): Result<Unit> = runCatching {
+        check(getAvailability() == HealthConnectAvailability.AVAILABLE) {
+            "Health Connect 目前不可用，請先完成安裝或更新。"
+        }
+
+        val client = HealthConnectClient.getOrCreate(context)
+        val startZoneOffset = ZoneId.systemDefault().rules.getOffset(runSessionDraft.startTime)
+        val endZoneOffset = ZoneId.systemDefault().rules.getOffset(runSessionDraft.endTime)
+
+        val route = ExerciseRoute(
+            runSessionDraft.points.mapNotNull { point ->
+                val timestamp = point.time ?: return@mapNotNull null
+                ExerciseRoute.Location(
+                    time = timestamp,
+                    latitude = point.lat,
+                    longitude = point.lng,
+                    altitude = point.elevation?.let { Length.meters(it) },
+                )
+            },
         )
+
+        val sessionRecord = ExerciseSessionRecord(
+            startTime = runSessionDraft.startTime,
+            startZoneOffset = startZoneOffset,
+            endTime = runSessionDraft.endTime,
+            endZoneOffset = endZoneOffset,
+            exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_RUNNING,
+            route = route,
+            title = "GPX Imported Run",
+            notes = "Imported by Step App",
+        )
+
+        client.insertRecords(listOf(sessionRecord))
+        Unit
     }
 }

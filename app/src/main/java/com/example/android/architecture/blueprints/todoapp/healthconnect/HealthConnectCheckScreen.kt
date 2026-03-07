@@ -38,6 +38,7 @@ fun HealthConnectCheckRoute(
         onRequestPermission = {
             permissionLauncher.launch(uiState.requiredPermissions)
         },
+        onSync = viewModel::syncLatestRun,
         onBack = onBack,
     )
 }
@@ -47,6 +48,7 @@ private fun HealthConnectCheckScreen(
     uiState: HealthConnectCheckUiState,
     onRefresh: () -> Unit,
     onRequestPermission: () -> Unit,
+    onSync: () -> Unit,
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -61,18 +63,24 @@ private fun HealthConnectCheckScreen(
         ) {
             Text(text = "Health Connect Sync", style = MaterialTheme.typography.headlineSmall)
             Text(
-                text = "Milestone 4: 完成 SDK 狀態檢查、權限請求與導引流程",
+                text = "Milestone 5: 寫入 Exercise Session / Route，並回報同步結果",
                 style = MaterialTheme.typography.bodyMedium,
             )
             Text(text = uiState.message, style = MaterialTheme.typography.bodyMedium)
 
-            if (uiState.isLoading) {
+            if (uiState.isLoading || uiState.isSyncing) {
                 CircularProgressIndicator()
             }
 
             if (uiState.isAvailable) {
                 Button(onClick = onRequestPermission, enabled = !uiState.hasAllPermissions) {
                     Text(if (uiState.hasAllPermissions) "已授權" else "請求 Health Connect 權限")
+                }
+                Button(
+                    onClick = onSync,
+                    enabled = uiState.hasAllPermissions && !uiState.isSyncing,
+                ) {
+                    Text("同步跑步資料")
                 }
             } else {
                 Button(
@@ -89,10 +97,14 @@ private fun HealthConnectCheckScreen(
                 }
             }
 
-            Button(onClick = onRefresh) {
+            uiState.syncErrorMessage?.let {
+                Text(text = "錯誤詳情：$it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+            }
+
+            Button(onClick = onRefresh, enabled = !uiState.isSyncing) {
                 Text("重新檢查")
             }
-            Button(onClick = onBack) {
+            Button(onClick = onBack, enabled = !uiState.isSyncing) {
                 Text("Back")
             }
         }
