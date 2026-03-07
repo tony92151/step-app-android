@@ -20,7 +20,6 @@ class AndroidHealthConnectGateway @Inject constructor(
 
     override val requiredPermissions: Set<String> = setOf(
         HealthPermission.getWritePermission(ExerciseSessionRecord::class),
-        HealthPermission.getWritePermission(ExerciseRoute::class),
     )
 
     override fun getAvailability(): HealthConnectAvailability {
