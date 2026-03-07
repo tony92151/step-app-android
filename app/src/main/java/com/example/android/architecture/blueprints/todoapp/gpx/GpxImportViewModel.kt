@@ -37,7 +37,7 @@ class GpxImportViewModel @Inject constructor(
                             fileName = imported.fileName,
                             pointCount = imported.points.size,
                             pointWithTimestampCount = imported.points.count { it.time != null },
-                            successMessage = "GPX 解析成功，可進入下一步預覽",
+                            successMessage = "GPX 解析成功，可前往跑步摘要預覽",
                         )
                     },
                     onFailure = { error ->
