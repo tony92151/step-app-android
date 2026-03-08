@@ -6,11 +6,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GpxImportRoute(
     onBack: () -> Unit,
@@ -46,6 +53,7 @@ fun GpxImportRoute(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GpxImportScreen(
     uiState: GpxImportUiState,
@@ -53,19 +61,28 @@ private fun GpxImportScreen(
     onBack: () -> Unit,
     onNavigateToPreview: () -> Unit,
 ) {
-    Scaffold { innerPadding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("匯入 GPX") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "返回"
+                        )
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 24.dp, vertical = 32.dp),
+                .padding(horizontal = 24.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text(text = "GPX Import", style = MaterialTheme.typography.headlineSmall)
-            Text(
-                text = "Milestone 2: 使用檔案選擇器匯入 GPX 並解析點位資料",
-                style = MaterialTheme.typography.bodyMedium,
-            )
             if (uiState.isLoading) {
                 CircularProgressIndicator()
             }
@@ -81,19 +98,24 @@ private fun GpxImportScreen(
                 )
             }
             uiState.successMessage?.let {
-                Text(text = it, style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
             }
             uiState.errorMessage?.let {
-                Text(text = it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
             }
             Button(
                 onClick = onNavigateToPreview,
                 enabled = uiState.fileName != null && uiState.errorMessage == null && !uiState.isLoading,
             ) {
                 Text("前往跑步摘要預覽")
-            }
-            Button(onClick = onBack, enabled = !uiState.isLoading) {
-                Text("Back")
             }
         }
     }
